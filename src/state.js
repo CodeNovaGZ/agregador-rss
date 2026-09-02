@@ -5,6 +5,7 @@ const state = proxy({
         error: null,
     },
     feeds: [],
+    posts: [],
 
 })
 

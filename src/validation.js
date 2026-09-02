@@ -1,18 +1,26 @@
 import * as yup from 'yup';
 
+yup.setLocale({
+  mixed: {
+    required: 'errors.required',
+  },
+  string: {
+    url: 'errors.url',
+  },
+});
+
 const createSchema = (feeds) => {
   return yup
     .string()
-    .required('No puede estar vacío')
-    .url('El enlace debe ser una URL válida')
+    .required()
+    .url()
     .test(
       'unique',
-      'El enlace ya ha sido agregado',
-      (value) => {
-        return value===undefined || !feeds.includes(value);
-      },
+      'errors.duplicate',
+      (value) => !feeds.includes(value),
     );
 };
+
 export const validation = (url, feeds) => {
   const schema = createSchema(feeds);
   return schema.validate(url);
