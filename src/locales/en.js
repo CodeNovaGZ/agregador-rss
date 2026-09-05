@@ -11,6 +11,7 @@ export default {
       required: 'Cannot be blank',
       url: 'The link must be a valid URL',
       duplicate: 'The link has already been added',
+      parse: 'Failed to parse the feed',
     },
   },
 };

@@ -1,6 +1,8 @@
 import state from './state.js';
 import i18n from './i18n.js';
 import {validation} from './validation.js';
+import getFeed from './api.js';
+import parse from './parser.js';
 
 export default () => {
     document.querySelector('#app').innerHTML = `<div class="container-sm"><h1>${i18n.t('title')}</h1><form id="rss-form">
@@ -18,20 +20,13 @@ export default () => {
   form.addEventListener('submit', (e)=>{
       e.preventDefault();
       validation(input.value, state.feeds)
-      .then((url)=>{
-          state.form.value = url;
-          state.form.error = null;
-
-          state.feeds.push(url);
-
-          state.form.value = '';
-          state.form.error = null;
-
-          input.value = '';
-          input.focus();
-      })
-      .catch((err)=>{
-          state.form.error = err.message;
-      })
+        .then((url) => getFeed(url))
+        .then((response) => parse(response.data.contents))
+        .then((data) => {
+            console.log(data);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
   })
 }

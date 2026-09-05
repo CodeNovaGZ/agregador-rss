@@ -9,6 +9,7 @@ export default {
       required: 'No puede estar vacío',
       url: 'El enlace debe ser una URL válida',
       duplicate: 'El enlace ya ha sido agregado',
+      parse: 'No se pudo analizar el feed',
     },
   },
 };
