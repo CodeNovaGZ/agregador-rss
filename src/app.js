@@ -18,8 +18,9 @@ const generateId = () => (
 
 const upsertPosts = (feedId, posts) => {
   posts.forEach((post) => {
+    const key = post.link || post.title;
     const exists = state.posts.some(
-      (savedPost) => savedPost.link === post.link,
+      (savedPost) => (savedPost.link || savedPost.title) === key,
     );
 
     if (!exists) {
