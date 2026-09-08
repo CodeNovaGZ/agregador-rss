@@ -7,27 +7,38 @@ import parse from './parser.js';
 
 let pollingStarted = false;
 
+const generateId = () => (
+  typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+);
+
+const upsertPosts = (feedId, posts) => {
+  posts.forEach((post) => {
+    const key = post.link || post.title;
+    const exists = state.posts.some(
+      (savedPost) => (savedPost.link || savedPost.title) === key,
+    );
+
+    if (!exists) {
+      state.posts.push({
+        id: generateId(),
+        feedId,
+        title: post.title,
+        description: post.description,
+        link: post.link,
+        read: false,
+      });
+    }
+  });
+};
+
 const checkFeeds = () => {
   const promises = state.feeds.map((feed) => {
     return getFeed(feed.url)
       .then((response) => parse(response.data.contents))
       .then((data) => {
-        data.posts.forEach((post) => {
-          const exists = state.posts.some(
-            (savedPost) => savedPost.link === post.link,
-          );
-
-          if (!exists) {
-            state.posts.push({
-              id: crypto.randomUUID(),
-              feedId: feed.id,
-              title: post.title,
-              description: post.description,
-              link: post.link,
-              read: false,
-            });
-          }
-        });
+        upsertPosts(feed.id, data.posts);
       })
       .catch(() => {
         // Si un feed falla, continuamos con los demás
@@ -38,7 +49,6 @@ const checkFeeds = () => {
     setTimeout(checkFeeds, 5000);
   });
 };
-
 
 export default () => {
     if (document.querySelector('#rss-form')) {
@@ -52,14 +62,15 @@ export default () => {
       <p class="text-white-50 fs-5">${i18n.t('subtitle')}</p>
       <form id="rss-form" class="mt-4">
         <div class="input-group">
-          <input type="text" class="form-control" id="inputRSS" placeholder="${i18n.t('form.placeholder')}" aria-label="${i18n.t('form.placeholder')}">
+          <label class="visually-hidden" for="url">${i18n.t('form.placeholder')}</label>
+          <input id="url" name="url" type="text" class="form-control" placeholder="${i18n.t('form.placeholder')}" aria-label="url">
           <button type="submit" class="btn btn-primary">${i18n.t('form.submit')}</button>
         </div>
         <p class="mt-3 mb-0 text-secondary">
           ${i18n.t('form.exampleLabel')}
-          <a href="https://hexlet.io/lessons.rss" class="text-secondary">https://hexlet.io/lessons.rss</a>
+          <a href="https://hnrss.org/frontpage" class="text-secondary">https://hnrss.org/frontpage</a>
         </p>
-        <div id="rssFeedback" class="fs-5 fw-semibold"></div>
+        <div id="rssFeedback" class="feedback fs-5 fw-semibold"></div>
       </form>
     </div>
   </header>
@@ -67,22 +78,22 @@ export default () => {
     <div class="row g-4">
       <section class="col-lg-8">
         <h2>${i18n.t('posts')}</h2>
-        <ul id="posts" class="list-unstyled"></ul>
+        <ul id="posts" class="posts list-unstyled"></ul>
       </section>
       <section class="col-lg-4">
         <h2>${i18n.t('feeds')}</h2>
-        <div id="feeds"></div>
+        <div id="feeds" class="feeds"></div>
       </section>
     </div>
   </main>
-  <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+  <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h2 class="modal-title fs-5" id="postModalLabel"></h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${i18n.t('modal.close')}"></button>
         </div>
-        <div class="modal-body" id="postModalDescription"></div>
+        <div class="modal-body" id="modal-body"></div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${i18n.t('modal.close')}</button>
           <a href="#" id="postModalLink" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${i18n.t('modal.readFull')}</a>
@@ -92,7 +103,7 @@ export default () => {
   </div>`;
 
   const form = document.querySelector('#rss-form');
-  const input = document.querySelector('#inputRSS');
+  const input = document.querySelector('#url');
   
   form.addEventListener('submit', (e)=>{
       e.preventDefault();
@@ -103,25 +114,16 @@ export default () => {
         .then(() => getFeed(url))
         .then((response) => parse(response.data.contents))
         .then((data) => {
-            const feedId = crypto.randomUUID();
-
-            state.feeds.push({
-              id: feedId,
+            const feed = {
+              id: generateId(),
               url,
               title: data.feed.title,
               description: data.feed.description,
-            });
+            };
 
-            data.posts.forEach((post) => {
-              state.posts.push({
-                id: crypto.randomUUID(),
-                feedId,
-                title: post.title,
-                description: post.description,
-                link: post.link,
-                read: false,
-              });
-            });
+            state.feeds.push(feed);
+
+            upsertPosts(feed.id, data.posts);
 
             state.form.success = true;
 

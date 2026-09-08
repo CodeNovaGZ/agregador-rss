@@ -2,7 +2,7 @@ export default {
   translation: {
     title: 'RSS Reader',
     subtitle: '¡Empieza a leer RSS hoy! Es sencillo y agradable.',
-    success: 'RSS cargado correctamente',
+    success: 'El RSS se cargó correctamente',
     posts: 'Posts',
     feeds: 'Feeds',
 
@@ -23,9 +23,9 @@ export default {
 
     errors: {
       required: 'No puede estar vacío',
-      url: 'El enlace debe ser una URL válida',
+      url: 'Debes ingresar una URL válida',
       duplicate: 'El RSS ya existe',
-      parse: 'El recurso no contiene un RSS válido',
+      parse: 'El recurso no contiene un RSS valido',
       network: 'Error de red',
     },
   },

@@ -1,3 +1,21 @@
+const getText = (element, selector) => (
+  element.querySelector(selector)?.textContent ?? null
+);
+
+const getHref = (item) => {
+  const linkEl = item.querySelector('link');
+
+  if (linkEl?.getAttribute('href')) {
+    return linkEl.getAttribute('href');
+  }
+
+  if (linkEl?.textContent) {
+    return linkEl.textContent;
+  }
+
+  return getText(item, 'guid') ?? item.getAttribute('rdf:about');
+};
+
 export default (xml) => {
   const parser = new DOMParser();
 
@@ -7,16 +25,34 @@ export default (xml) => {
     throw new Error('errors.parse');
   }
 
+  const atomFeed = document.querySelector('feed');
+
+  if (atomFeed) {
+    const posts = [...document.querySelectorAll('entry')].map((entry) => ({
+      title: getText(entry, 'title'),
+      description: getText(entry, 'content') ?? getText(entry, 'summary'),
+      link: getHref(entry),
+    }));
+
+    return {
+      feed: {
+        title: getText(atomFeed, 'title'),
+        description: getText(atomFeed, 'subtitle') ?? getText(atomFeed, 'description'),
+      },
+      posts,
+    };
+  }
+
   const channel = document.querySelector('channel');
 
   const title = channel.querySelector('title').textContent;
 
   const description = channel.querySelector('description').textContent;
 
-  const posts = [...channel.querySelectorAll('item')].map((item) => ({
+  const posts = [...document.querySelectorAll('item')].map((item) => ({
     title: item.querySelector('title')?.textContent,
     description: item.querySelector('description')?.textContent,
-    link: item.querySelector('link')?.textContent,
+    link: getHref(item),
   }));
 
   return {

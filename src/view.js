@@ -35,12 +35,12 @@ const openPreview = (postId) => {
   post.read = true;
 
   document.querySelector('#postModalLabel').textContent = post.title;
-  document.querySelector('#postModalDescription').textContent = post.description ?? '';
+  document.querySelector('#modal-body').textContent = post.description ?? '';
 
   const link = document.querySelector('#postModalLink');
   link.href = post.link;
 
-  Modal.getOrCreateInstance('#postModal').show();
+  Modal.getOrCreateInstance('#modal').show();
 };
 
 const renderPosts = () => {
@@ -55,7 +55,11 @@ const renderPosts = () => {
     const link = document.createElement('a');
     link.href = post.link;
     link.textContent = post.title;
-    link.classList.add('text-primary', post.read ? 'fw-normal' : 'fw-bold');
+    if (post.read) {
+      link.classList.add('link-secondary');
+    } else {
+      link.classList.add('text-primary', 'fw-bold');
+    }
 
     const preview = document.createElement('button');
     preview.type = 'button';
@@ -69,7 +73,7 @@ const renderPosts = () => {
 };
 
 const renderForm = () => {
-  const input = document.querySelector('#inputRSS');
+  const input = document.querySelector('#url');
   const feedback = document.querySelector('#rssFeedback');
 
   feedback.classList.remove('text-danger', 'text-success');
