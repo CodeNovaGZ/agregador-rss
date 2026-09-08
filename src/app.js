@@ -60,7 +60,7 @@ export default () => {
           ${i18n.t('form.exampleLabel')}
           <a href="https://hexlet.io/lessons.rss" class="text-secondary">https://hexlet.io/lessons.rss</a>
         </p>
-        <div id="rssFeedback" class="fs-5 fw-semibold"></div>
+        <div id="rssFeedback" class="feedback fs-5 fw-semibold"></div>
       </form>
     </div>
   </header>
@@ -68,11 +68,11 @@ export default () => {
     <div class="row g-4">
       <section class="col-lg-8">
         <h2>${i18n.t('posts')}</h2>
-        <ul id="posts" class="list-unstyled"></ul>
+        <ul id="posts" class="posts list-unstyled"></ul>
       </section>
       <section class="col-lg-4">
         <h2>${i18n.t('feeds')}</h2>
-        <div id="feeds"></div>
+        <div id="feeds" class="feeds"></div>
       </section>
     </div>
   </main>
