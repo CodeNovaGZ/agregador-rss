@@ -7,33 +7,40 @@ import parse from './parser.js';
 
 let pollingStarted = false;
 
+const MAX_EMPTY_RETRIES = 3;
+const EMPTY_RETRY_DELAY = 1000;
+
 const generateId = () => (
   typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 );
 
+const upsertPosts = (feedId, posts) => {
+  posts.forEach((post) => {
+    const exists = state.posts.some(
+      (savedPost) => savedPost.link === post.link,
+    );
+
+    if (!exists) {
+      state.posts.push({
+        id: generateId(),
+        feedId,
+        title: post.title,
+        description: post.description,
+        link: post.link,
+        read: false,
+      });
+    }
+  });
+};
+
 const checkFeeds = () => {
   const promises = state.feeds.map((feed) => {
     return getFeed(feed.url)
       .then((response) => parse(response.data.contents))
       .then((data) => {
-        data.posts.forEach((post) => {
-          const exists = state.posts.some(
-            (savedPost) => savedPost.link === post.link,
-          );
-
-          if (!exists) {
-            state.posts.push({
-              id: generateId(),
-              feedId: feed.id,
-              title: post.title,
-              description: post.description,
-              link: post.link,
-              read: false,
-            });
-          }
-        });
+        upsertPosts(feed.id, data.posts);
       })
       .catch(() => {
         // Si un feed falla, continuamos con los demás
@@ -43,6 +50,25 @@ const checkFeeds = () => {
   Promise.all(promises).then(() => {
     setTimeout(checkFeeds, 5000);
   });
+};
+
+const retryEmptyFeed = (feed, attempt) => {
+  if (attempt >= MAX_EMPTY_RETRIES) {
+    return;
+  }
+
+  setTimeout(() => {
+    getFeed(feed.url)
+      .then((response) => parse(response.data.contents))
+      .then((data) => {
+        upsertPosts(feed.id, data.posts);
+
+        if (data.posts.length === 0) {
+          retryEmptyFeed(feed, attempt + 1);
+        }
+      })
+      .catch(() => {});
+  }, EMPTY_RETRY_DELAY);
 };
 
 
@@ -110,27 +136,22 @@ export default () => {
         .then(() => getFeed(url))
         .then((response) => parse(response.data.contents))
         .then((data) => {
-            const feedId = generateId();
-
-            state.feeds.push({
-              id: feedId,
+            const feed = {
+              id: generateId(),
               url,
               title: data.feed.title,
               description: data.feed.description,
-            });
+            };
 
-            data.posts.forEach((post) => {
-              state.posts.push({
-id: generateId(),
-                feedId,
-                title: post.title,
-                description: post.description,
-                link: post.link,
-                read: false,
-              });
-            });
+            state.feeds.push(feed);
+
+            upsertPosts(feed.id, data.posts);
 
             state.form.success = true;
+
+            if (data.posts.length === 0) {
+              retryEmptyFeed(feed, 0);
+            }
 
             if (!pollingStarted) {
               pollingStarted = true;
