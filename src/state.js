@@ -3,6 +3,7 @@ const state = proxy({
     form: {
         value: '',
         error: null,
+        success: false,
     },
     feeds: [],
     posts: [],

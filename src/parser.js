@@ -14,8 +14,9 @@ export default (xml) => {
   const description = channel.querySelector('description').textContent;
 
   const posts = [...channel.querySelectorAll('item')].map((item) => ({
-    title: item.querySelector('title').textContent,
-    link: item.querySelector('link').textContent,
+    title: item.querySelector('title')?.textContent,
+    description: item.querySelector('description')?.textContent,
+    link: item.querySelector('link')?.textContent,
   }));
 
   return {
