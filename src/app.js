@@ -7,6 +7,12 @@ import parse from './parser.js';
 
 let pollingStarted = false;
 
+const generateId = () => (
+  typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+);
+
 const checkFeeds = () => {
   const promises = state.feeds.map((feed) => {
     return getFeed(feed.url)
@@ -19,7 +25,7 @@ const checkFeeds = () => {
 
           if (!exists) {
             state.posts.push({
-              id: crypto.randomUUID(),
+              id: generateId(),
               feedId: feed.id,
               title: post.title,
               description: post.description,
@@ -104,7 +110,7 @@ export default () => {
         .then(() => getFeed(url))
         .then((response) => parse(response.data.contents))
         .then((data) => {
-            const feedId = crypto.randomUUID();
+            const feedId = generateId();
 
             state.feeds.push({
               id: feedId,
@@ -115,7 +121,7 @@ export default () => {
 
             data.posts.forEach((post) => {
               state.posts.push({
-                id: crypto.randomUUID(),
+id: generateId(),
                 feedId,
                 title: post.title,
                 description: post.description,
