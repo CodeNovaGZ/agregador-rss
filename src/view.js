@@ -55,7 +55,11 @@ const renderPosts = () => {
     const link = document.createElement('a');
     link.href = post.link;
     link.textContent = post.title;
-    link.classList.add(post.read ? 'link-secondary' : 'text-primary fw-bold');
+    if (post.read) {
+      link.classList.add('link-secondary');
+    } else {
+      link.classList.add('text-primary', 'fw-bold');
+    }
 
     const preview = document.createElement('button');
     preview.type = 'button';

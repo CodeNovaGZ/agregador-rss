@@ -13,7 +13,7 @@ const getHref = (item) => {
     return linkEl.textContent;
   }
 
-  return getText(item, 'guid');
+  return getText(item, 'guid') ?? item.getAttribute('rdf:about');
 };
 
 export default (xml) => {
@@ -28,7 +28,7 @@ export default (xml) => {
   const atomFeed = document.querySelector('feed');
 
   if (atomFeed) {
-    const posts = [...atomFeed.querySelectorAll('entry')].map((entry) => ({
+    const posts = [...document.querySelectorAll('entry')].map((entry) => ({
       title: getText(entry, 'title'),
       description: getText(entry, 'content') ?? getText(entry, 'summary'),
       link: getHref(entry),
@@ -49,7 +49,7 @@ export default (xml) => {
 
   const description = channel.querySelector('description').textContent;
 
-  const posts = [...channel.querySelectorAll('item')].map((item) => ({
+  const posts = [...document.querySelectorAll('item')].map((item) => ({
     title: item.querySelector('title')?.textContent,
     description: item.querySelector('description')?.textContent,
     link: getHref(item),
