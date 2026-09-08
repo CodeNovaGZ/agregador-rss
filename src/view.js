@@ -35,12 +35,12 @@ const openPreview = (postId) => {
   post.read = true;
 
   document.querySelector('#postModalLabel').textContent = post.title;
-  document.querySelector('#postModalDescription').textContent = post.description ?? '';
+  document.querySelector('#modal-body').textContent = post.description ?? '';
 
   const link = document.querySelector('#postModalLink');
   link.href = post.link;
 
-  Modal.getOrCreateInstance('#postModal').show();
+  Modal.getOrCreateInstance('#modal').show();
 };
 
 const renderPosts = () => {

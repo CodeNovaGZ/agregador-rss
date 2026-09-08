@@ -82,14 +82,14 @@ export default () => {
       </section>
     </div>
   </main>
-  <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+  <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h2 class="modal-title fs-5" id="postModalLabel"></h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${i18n.t('modal.close')}"></button>
         </div>
-        <div class="modal-body" id="postModalDescription"></div>
+        <div class="modal-body" id="modal-body"></div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${i18n.t('modal.close')}</button>
           <a href="#" id="postModalLink" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${i18n.t('modal.readFull')}</a>
