@@ -17,7 +17,7 @@ const createSchema = (feeds) => {
     .test(
       'unique',
       'errors.duplicate',
-      (value) => !feeds.includes(value),
+      (value) => !feeds.some((feed) => feed.url === value),
     );
 };
 

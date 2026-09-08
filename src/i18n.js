@@ -3,7 +3,7 @@ import es from './locales/es.js';
 import en from './locales/en.js';
 
 i18next.init({
-  lng: 'en',
+  lng: 'es',
   resources: {
     es,
     en,
