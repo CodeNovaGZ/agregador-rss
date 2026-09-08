@@ -1,1 +1,23 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
+
+#modal-body img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 1rem;
+}
+
+#modal-body iframe,
+#modal-body video,
+#modal-body embed,
+#modal-body object {
+  max-width: 100%;
+}
+
+#modal-body {
+  overflow-wrap: break-word;
+}
+
+#modal-body table {
+  max-width: 100%;
+}
