@@ -55,7 +55,7 @@ const renderPosts = () => {
     const link = document.createElement('a');
     link.href = post.link;
     link.textContent = post.title;
-    link.classList.add('text-primary', post.read ? 'fw-normal' : 'fw-bold');
+    link.classList.add(post.read ? 'link-secondary' : 'text-primary fw-bold');
 
     const preview = document.createElement('button');
     preview.type = 'button';
