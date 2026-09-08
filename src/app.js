@@ -7,9 +7,6 @@ import parse from './parser.js';
 
 let pollingStarted = false;
 
-const MAX_EMPTY_RETRIES = 3;
-const EMPTY_RETRY_DELAY = 1000;
-
 const generateId = () => (
   typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
@@ -53,26 +50,6 @@ const checkFeeds = () => {
   });
 };
 
-const retryEmptyFeed = (feed, attempt) => {
-  if (attempt >= MAX_EMPTY_RETRIES) {
-    return;
-  }
-
-  setTimeout(() => {
-    getFeed(feed.url)
-      .then((response) => parse(response.data.contents))
-      .then((data) => {
-        upsertPosts(feed.id, data.posts);
-
-        if (data.posts.length === 0) {
-          retryEmptyFeed(feed, attempt + 1);
-        }
-      })
-      .catch(() => {});
-  }, EMPTY_RETRY_DELAY);
-};
-
-
 export default () => {
     if (document.querySelector('#rss-form')) {
       return;
@@ -91,7 +68,7 @@ export default () => {
         </div>
         <p class="mt-3 mb-0 text-secondary">
           ${i18n.t('form.exampleLabel')}
-          <a href="https://hexlet.io/lessons.rss" class="text-secondary">https://hexlet.io/lessons.rss</a>
+          <a href="https://hnrss.org/frontpage" class="text-secondary">https://hnrss.org/frontpage</a>
         </p>
         <div id="rssFeedback" class="feedback fs-5 fw-semibold"></div>
       </form>
@@ -149,10 +126,6 @@ export default () => {
             upsertPosts(feed.id, data.posts);
 
             state.form.success = true;
-
-            if (data.posts.length === 0) {
-              retryEmptyFeed(feed, 0);
-            }
 
             if (!pollingStarted) {
               pollingStarted = true;
