@@ -4,9 +4,9 @@ Agregador de fuentes RSS: suscríbete a varios feeds y consulta sus publicacione
 
 ## Estado del proyecto
 
-[![Hexlet tests and linter status](https://github.com/CodeNovaGZ/fullstack-javascript-project-137/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/CodeNovaGZ/fullstack-javascript-project-137/actions)
-[![Node.js CI](https://github.com/CodeNovaGZ/fullstack-javascript-project-137/actions/workflows/node.js.yml/badge.svg)](https://github.com/CodeNovaGZ/fullstack-javascript-project-137/actions/workflows/node.js.yml)
-[![Maintainability](https://qlty.sh/gh/CodeNovaGZ/projects/fullstack-javascript-project-137/maintainability.svg)](https://qlty.sh/gh/CodeNovaGZ/projects/fullstack-javascript-project-137)
+[![Hexlet tests and linter status](https://github.com/CodeNovaGZ/agregador-rss/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/CodeNovaGZ/agregador-rss/actions)
+[![Node.js CI](https://github.com/CodeNovaGZ/agregador-rss/actions/workflows/node.js.yml/badge.svg)](https://github.com/CodeNovaGZ/agregador-rss/actions/workflows/node.js.yml)
+[![Maintainability](https://qlty.sh/gh/CodeNovaGZ/projects/agregador-rss/maintainability.svg)](https://qlty.sh/gh/CodeNovaGZ/projects/agregador-rss)
 [![Deploy](https://img.shields.io/badge/desplegado-vercel-000000?logo=vercel)](https://agregador-rss.vercel.app/)
 
 ## Demo

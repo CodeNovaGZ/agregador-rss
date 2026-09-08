@@ -69,7 +69,7 @@ const renderPosts = () => {
 };
 
 const renderForm = () => {
-  const input = document.querySelector('#inputRSS');
+  const input = document.querySelector('#url');
   const feedback = document.querySelector('#rssFeedback');
 
   feedback.classList.remove('text-danger', 'text-success');
