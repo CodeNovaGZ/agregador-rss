@@ -1,5 +1,6 @@
 import { subscribe } from 'valtio/vanilla';
 import { Modal } from 'bootstrap';
+import DOMPurify from 'dompurify';
 import state from './state.js';
 import i18n from './i18n.js';
 
@@ -35,7 +36,7 @@ const openPreview = (postId) => {
   post.read = true;
 
   document.querySelector('#postModalLabel').textContent = post.title;
-  document.querySelector('#modal-body').textContent = post.description ?? '';
+  document.querySelector('#modal-body').innerHTML = DOMPurify.sanitize(post.description ?? '');
 
   const link = document.querySelector('#postModalLink');
   link.href = post.link;
