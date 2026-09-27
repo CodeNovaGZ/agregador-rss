@@ -60,7 +60,7 @@ const mockFeed = (page, contents) => page.route('**/get?**', (route) => {
 });
 
 const submit = async (page, url) => {
-  await page.fill('#url', url);
+  await page.locator('input[aria-label="url"]').fill(url);
   await page.click('button[type="submit"]');
 };
 
@@ -68,7 +68,8 @@ test('app loads and shows the form', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: 'RSS Reader' })).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Enlace RSS' })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'url' })).toBeVisible();
+  await expect(page.locator('input[aria-label="url"]')).toHaveCount(1);
   await expect(page.getByRole('button', { name: 'Añadir' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Posts' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Feeds' })).toBeVisible();
@@ -84,7 +85,7 @@ test('sets the document title and language from the translations', async ({ page
 test('turns off autofill and renders the example link from the translations', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByRole('textbox', { name: 'Enlace RSS' })).toHaveAttribute('autocomplete', 'off');
+  await expect(page.getByRole('textbox', { name: 'url' })).toHaveAttribute('autocomplete', 'off');
 
   const example = page.getByRole('link', { name: 'https://hnrss.org/frontpage' });
   await expect(example).toBeVisible();
@@ -106,12 +107,12 @@ test('disables the form controls while the feed is loading', async ({ page }) =>
   await submit(page, feedUrl);
 
   await expect(page.getByRole('button', { name: 'Cargando…' })).toBeDisabled();
-  await expect(page.getByRole('textbox', { name: 'Enlace RSS' })).toBeDisabled();
+  await expect(page.getByRole('textbox', { name: 'url' })).toBeDisabled();
 
   release();
 
   await expect(page.getByRole('button', { name: 'Añadir' })).toBeEnabled();
-  await expect(page.getByRole('textbox', { name: 'Enlace RSS' })).toBeEnabled();
+  await expect(page.getByRole('textbox', { name: 'url' })).toBeEnabled();
   await expect(page.locator('.posts').getByRole('link', { name: 'Post con HTML' })).toBeVisible();
 });
 

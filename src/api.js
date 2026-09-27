@@ -1,13 +1,12 @@
 import axios from 'axios';
 import { AppError, ErrorCode } from './errors.js';
 
-const PROXY_URL = 'https://allorigins.hexlet.app/get';
-
 export default async (url) => {
+  const proxyUrl = `https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`;
+
   try {
-    const response = await axios.get(PROXY_URL, {
+    const response = await axios.get(proxyUrl, {
       params: {
-        url,
         disableCache: true,
       },
     });

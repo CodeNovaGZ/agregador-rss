@@ -64,8 +64,8 @@ const renderLayout = () => {
       <p class="text-white-50 fs-5">${i18n.t('subtitle')}</p>
       <form id="rss-form" class="mt-4" novalidate>
         <div class="input-group">
-          <label class="visually-hidden" for="url">${i18n.t('form.label')}</label>
-          <input id="url" name="url" type="text" class="form-control" placeholder="${i18n.t('form.placeholder')}" aria-label="${i18n.t('form.label')}" autocomplete="off">
+          <label class="visually-hidden" for="url">${i18n.t('form.placeholder')}</label>
+          <input id="url" name="url" type="text" class="form-control" placeholder="${i18n.t('form.placeholder')}" aria-label="${i18n.t('form.inputAriaLabel')}" autocomplete="off">
           <button type="submit" id="rss-submit" class="btn btn-primary">${i18n.t('form.submit')}</button>
         </div>
         <p class="mt-3 mb-0 text-secondary">

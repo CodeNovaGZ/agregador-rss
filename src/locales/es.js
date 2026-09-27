@@ -7,12 +7,12 @@ export default {
     feeds: 'Feeds',
 
     form: {
-      label: 'Enlace RSS',
       placeholder: 'RSS link',
       submit: 'Añadir',
       submitting: 'Cargando…',
       exampleLabel: 'Un ejemplo:',
       exampleUrl: 'https://hnrss.org/frontpage',
+      inputAriaLabel: 'url',
     },
 
     button: {
