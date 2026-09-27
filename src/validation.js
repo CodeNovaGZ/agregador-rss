@@ -1,27 +1,20 @@
 import * as yup from 'yup';
+import { ErrorCode } from './errors.js';
 
-yup.setLocale({
-  mixed: {
-    required: 'errors.required',
-  },
-  string: {
-    url: 'errors.url',
-  },
-});
+const urlSchema = yup.string().url();
 
-const createSchema = (feeds) => {
-  return yup
-    .string()
-    .required()
-    .url()
-    .test(
-      'unique',
-      'errors.duplicate',
-      (value) => !feeds.some((feed) => feed.url === value),
-    );
-};
+export const validateUrl = async (url, feeds) => {
+  const value = url.trim();
 
-export const validation = (url, feeds) => {
-  const schema = createSchema(feeds);
-  return schema.validate(url);
+  if (!value) {
+    return ErrorCode.REQUIRED;
+  }
+
+  if (feeds.some((feed) => feed.url === value)) {
+    return ErrorCode.DUPLICATE;
+  }
+
+  const isValidUrl = await urlSchema.isValid(value);
+
+  return isValidUrl ? null : ErrorCode.INVALID_URL;
 };

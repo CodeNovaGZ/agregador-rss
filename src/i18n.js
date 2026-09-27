@@ -1,13 +1,14 @@
-import i18next from 'i18next';
+import { createInstance } from 'i18next';
 import es from './locales/es.js';
 import en from './locales/en.js';
 
-i18next.init({
+const i18n = createInstance();
+
+export const initI18n = () => i18n.init({
   lng: 'es',
-  resources: {
-    es,
-    en,
-  },
+  fallbackLng: 'es',
+  resources: { es, en },
+  returnEmptyString: false,
 });
 
-export default i18next;
+export default i18n;

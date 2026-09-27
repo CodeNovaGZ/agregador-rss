@@ -9,7 +9,10 @@ export default {
     form: {
       placeholder: 'RSS link',
       submit: 'Añadir',
+      submitting: 'Cargando…',
       exampleLabel: 'Un ejemplo:',
+      exampleUrl: 'https://hnrss.org/frontpage',
+      inputAriaLabel: 'url',
     },
 
     button: {
@@ -27,6 +30,7 @@ export default {
       duplicate: 'El RSS ya existe',
       parse: 'El recurso no contiene un RSS valido',
       network: 'Error de red',
+      unknown: 'Error inesperado',
     },
   },
 };
