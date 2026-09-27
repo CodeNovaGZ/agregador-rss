@@ -1,11 +1,29 @@
 import axios from 'axios';
+import { AppError, ErrorCode } from './errors.js';
 
-export default (url) => {
-  const proxyUrl = `https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`;
+const PROXY_URL = 'https://allorigins.hexlet.app/get';
 
-  return axios.get(proxyUrl, {
-    params: {
-      disableCache: true,
-    },
-  });
+export default async (url) => {
+  try {
+    const response = await axios.get(PROXY_URL, {
+      params: {
+        url,
+        disableCache: true,
+      },
+    });
+
+    const contents = response.data?.contents;
+
+    if (typeof contents !== 'string' || contents === '') {
+      throw new AppError(ErrorCode.NETWORK);
+    }
+
+    return contents;
+  } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
+
+    throw new AppError(ErrorCode.NETWORK);
+  }
 };

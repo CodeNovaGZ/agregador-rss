@@ -1,9 +1,9 @@
-import state from './state.js';
 import i18n from './i18n.js';
-import {validation} from './validation.js';
+import { createStore, FormStatus } from './state.js';
+import { validateUrl } from './validation.js';
+import { AppError, ErrorCode } from './errors.js';
 import getFeed from './api.js';
 import parse from './parser.js';
-
 
 let pollingStarted = false;
 
@@ -13,15 +13,19 @@ const generateId = () => (
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 );
 
-const upsertPosts = (feedId, posts) => {
+const upsertPosts = (store, feedId, posts) => {
   posts.forEach((post) => {
+    if (!post.title && !post.link) {
+      return;
+    }
+
     const key = post.link || post.title;
-    const exists = state.posts.some(
+    const exists = store.posts.some(
       (savedPost) => (savedPost.link || savedPost.title) === key,
     );
 
     if (!exists) {
-      state.posts.push({
+      store.posts.push({
         id: generateId(),
         feedId,
         title: post.title,
@@ -33,12 +37,12 @@ const upsertPosts = (feedId, posts) => {
   });
 };
 
-const checkFeeds = () => {
-  const promises = state.feeds.map((feed) => {
+const checkFeeds = (store) => {
+  const promises = store.feeds.map((feed) => {
     return getFeed(feed.url)
-      .then((response) => parse(response.data.contents))
+      .then((xml) => parse(xml))
       .then((data) => {
-        upsertPosts(feed.id, data.posts);
+        upsertPosts(store, feed.id, data.posts);
       })
       .catch(() => {
         // Si un feed falla, continuamos con los demás
@@ -46,31 +50,29 @@ const checkFeeds = () => {
   });
 
   Promise.all(promises).then(() => {
-    setTimeout(checkFeeds, 5000);
+    setTimeout(() => checkFeeds(store), 5000);
   });
 };
 
-export default () => {
-    if (document.querySelector('#rss-form')) {
-      return;
-    }
+const renderLayout = () => {
+  const exampleUrl = i18n.t('form.exampleUrl');
 
-    document.querySelector('#app').innerHTML = `
+  document.querySelector('#app').innerHTML = `
   <header class="bg-dark text-white py-5 mb-4">
     <div class="container">
       <h1 class="display-4 mb-3">${i18n.t('title')}</h1>
       <p class="text-white-50 fs-5">${i18n.t('subtitle')}</p>
-      <form id="rss-form" class="mt-4">
+      <form id="rss-form" class="mt-4" novalidate>
         <div class="input-group">
-          <label class="visually-hidden" for="url">${i18n.t('form.placeholder')}</label>
-          <input id="url" name="url" type="text" class="form-control" placeholder="${i18n.t('form.placeholder')}" aria-label="url">
-          <button type="submit" class="btn btn-primary">${i18n.t('form.submit')}</button>
+          <label class="visually-hidden" for="url">${i18n.t('form.label')}</label>
+          <input id="url" name="url" type="text" class="form-control" placeholder="${i18n.t('form.placeholder')}" aria-label="${i18n.t('form.label')}" autocomplete="off">
+          <button type="submit" id="rss-submit" class="btn btn-primary">${i18n.t('form.submit')}</button>
         </div>
         <p class="mt-3 mb-0 text-secondary">
           ${i18n.t('form.exampleLabel')}
-          <a href="https://hnrss.org/frontpage" class="text-secondary">https://hnrss.org/frontpage</a>
+          <a href="${exampleUrl}" class="text-secondary">${exampleUrl}</a>
         </p>
-        <div id="rssFeedback" class="feedback fs-5 fw-semibold"></div>
+        <div id="rssFeedback" class="feedback fs-5 fw-semibold" role="status" aria-live="polite"></div>
       </form>
     </div>
   </header>
@@ -101,39 +103,63 @@ export default () => {
       </div>
     </div>
   </div>`;
+};
+
+export default () => {
+  if (document.querySelector('#rss-form')) {
+    return null;
+  }
+
+  const store = createStore();
+
+  renderLayout();
 
   const form = document.querySelector('#rss-form');
   const input = document.querySelector('#url');
-  
-  form.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      state.form.error = null;
-      state.form.success = false;
-      const url = input.value;
-      validation(url, state.feeds)
-        .then(() => getFeed(url))
-        .then((response) => parse(response.data.contents))
-        .then((data) => {
-            const feed = {
-              id: generateId(),
-              url,
-              title: data.feed.title,
-              description: data.feed.description,
-            };
 
-            state.feeds.push(feed);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-            upsertPosts(feed.id, data.posts);
+    if (store.form.status === FormStatus.LOADING) {
+      return;
+    }
 
-            state.form.success = true;
+    store.form.error = null;
+    store.form.status = FormStatus.LOADING;
 
-            if (!pollingStarted) {
-              pollingStarted = true;
-              checkFeeds();
-            }
-          }).catch((err) => {
-              const errorKeys = ['errors.required', 'errors.url', 'errors.duplicate', 'errors.parse'];
-              state.form.error = errorKeys.includes(err.message) ? err.message : 'errors.network';
-        });
-  })
-}
+    const url = input.value.trim();
+
+    try {
+      const errorCode = await validateUrl(url, store.feeds);
+
+      if (errorCode) {
+        throw new AppError(errorCode);
+      }
+
+      const xml = await getFeed(url);
+      const data = parse(xml);
+
+      const feed = {
+        id: generateId(),
+        url,
+        title: data.feed.title,
+        description: data.feed.description,
+      };
+
+      store.feeds.push(feed);
+
+      upsertPosts(store, feed.id, data.posts);
+
+      if (!pollingStarted) {
+        pollingStarted = true;
+        checkFeeds(store);
+      }
+    } catch (err) {
+      store.form.error = err instanceof AppError ? err.code : ErrorCode.UNKNOWN;
+    } finally {
+      store.form.status = store.form.error ? FormStatus.ERROR : FormStatus.SUCCESS;
+    }
+  });
+
+  return store;
+};

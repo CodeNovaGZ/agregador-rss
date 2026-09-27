@@ -7,9 +7,12 @@ export default {
     feeds: 'Feeds',
 
     form: {
+      label: 'RSS link',
       placeholder: 'RSS Link',
       submit: 'Add',
+      submitting: 'Loading…',
       exampleLabel: 'An example:',
+      exampleUrl: 'https://hnrss.org/frontpage',
     },
 
     button: {
@@ -27,6 +30,7 @@ export default {
       duplicate: 'The link has already been added',
       parse: 'Failed to parse the feed',
       network: 'Network error',
+      unknown: 'Unexpected error',
     },
   },
 };
